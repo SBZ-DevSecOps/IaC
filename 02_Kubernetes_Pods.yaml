@@ -1,0 +1,24 @@
+# Vulnérabilités : A01, A04 (Insecure Design), A05
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vulnerable-pod
+spec:
+  containers:
+  - name: app
+    image: nginx:latest  # Pas de tag spécifique
+    securityContext:
+      privileged: true   # Container privilégié
+      runAsUser: 0       # Exécution en root
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+          - ALL          # Toutes les capabilities
+    env:
+    - name: DB_PASSWORD
+      value: "P@ssw0rd123!"  # Secret en clair (A07)
+    - name: API_KEY
+      value: "sk_live_abcd1234567890"  # Clé API en dur
+    resources: {}        # Pas de limites de ressources
+  hostNetwork: true      # Accès au réseau de l'hôte
+  hostPID: true         # Accès aux processus de l'hôte

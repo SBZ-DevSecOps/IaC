@@ -1,0 +1,31 @@
+# Vulnérabilités : A03 (Injection), A07 (Security Logging Failures)
+---
+- hosts: all
+  become: yes
+  vars:
+    admin_password: "admin123"  # Mot de passe en clair
+    
+  tasks:
+    - name: Execute dangerous command
+      shell: |
+        curl {{ user_input }} | bash  # Injection de commande possible
+      environment:
+        AWS_ACCESS_KEY_ID: "AKIAIOSFODNN7EXAMPLE"  # Credentials AWS
+        AWS_SECRET_ACCESS_KEY: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+
+    - name: Create user with weak password
+      user:
+        name: admin
+        password: "{{ admin_password | password_hash('sha512') }}"
+        shell: /bin/bash
+        groups: sudo  # Ajout direct au groupe sudo
+
+    - name: Disable security features
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: '^PermitRootLogin', line: 'PermitRootLogin yes' }
+        - { regexp: '^PasswordAuthentication', line: 'PasswordAuthentication yes' }
+        - { regexp: '^PermitEmptyPasswords', line: 'PermitEmptyPasswords yes' }

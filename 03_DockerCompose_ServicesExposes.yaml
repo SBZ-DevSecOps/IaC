@@ -1,0 +1,27 @@
+# Vulnérabilités : A02 (Cryptographic Failures), A05, A06 (Vulnerable Components)
+version: '3'
+services:
+  database:
+    image: mysql:5.6  # Version obsolète avec vulnérabilités connues
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123  # Mot de passe faible
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"  # Base de données exposée publiquement
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql  # Montage sensible
+
+  redis:
+    image: redis:3.0  # Version vulnérable
+    command: redis-server --requirepass ""  # Pas d'authentification
+    ports:
+      - "6379:6379"  # Redis exposé sans protection
+
+  webapp:
+    build: .
+    environment:
+      DEBUG: "true"  # Mode debug en production
+      SECRET_KEY: "dev-secret-key"  # Clé secrète faible
+    ports:
+      - "80:80"
+    privileged: true  # Conteneur privilégié

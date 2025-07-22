@@ -1,0 +1,34 @@
+# Vulnérabilités : A01, A04, A05
+Resources:
+  VulnerableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: '*'  # Tous les services peuvent assumer ce rôle
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: OverlyPermissivePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: '*'  # Toutes les actions autorisées
+                Resource: '*'  # Sur toutes les ressources
+
+  VulnerableSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Vulnerable SG
+      SecurityGroupIngress:
+        - IpProtocol: -1  # Tous les protocoles
+          CidrIp: 0.0.0.0/0  # Ouvert à Internet
+          FromPort: -1
+          ToPort: -1
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0  # SSH ouvert au monde
