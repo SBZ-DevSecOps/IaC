@@ -1,4 +1,43 @@
 
+# Vulnérabilités : A02, A05, A08 (Software and Data Integrity Failures)
+replicaCount: 1
+
+image:
+  repository: myapp
+  tag: latest  # Pas de version fixe
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer  # Exposition publique par défaut
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"  # Pas de HTTPS forcé
+  hosts:
+    - host: ""  # Accepte tout host
+      paths:
+        - path: /
+          pathType: Prefix
+
+secrets:
+  dbPassword: "password123"  # Secret en clair
+  apiKey: "sk_test_1234567890abcdef"
+  jwtSecret: "my-jwt-secret"
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres"  # Mot de passe par défaut
+    database: "myapp"
+  persistence:
+    enabled: false  # Pas de persistance
+
+securityContext:
+  runAsNonRoot: false  # Exécution en root
+  runAsUser: 0
+  fsGroup: 0
 
 
 
